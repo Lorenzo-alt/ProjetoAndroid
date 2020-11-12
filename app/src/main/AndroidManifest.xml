@@ -9,9 +9,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjetoAndroid">
-        <activity android:name=".TelaPrincipal"></activity>
-        <activity android:name=".MainActivity"
-            android:theme="@style/Theme.myNoActionBar">
+        <activity android:name=".TelaRegistrar"
+            android:theme="@style/Theme.meuNoActionBar"></activity>
+        <activity android:name=".TelaPrincipal"
+            android:theme="@style/Theme.meuNoActionBar"/>
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/Theme.meuNoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

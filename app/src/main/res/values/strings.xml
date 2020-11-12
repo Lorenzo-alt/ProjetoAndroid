@@ -1,3 +1,32 @@
 <resources>
     <string name="app_name">ProjetoAndroid</string>
+    <string-array name="tarefas">
+        <item>Estudar</item>
+        <item>Evento</item>
+        <item>Palestra</item>
+        <item>Entrega Trabalho</item>
+        <item>Entrevista de empregosadasdasdasd</item>
+        <item>Role</item>
+        <item>Workshop</item>
+    </string-array>
+
+    <string-array name="datas_cadastro">
+        <item>06/11/2020</item>
+        <item>06/11/2020</item>
+        <item>06/11/2020</item>
+        <item>06/11/2020</item>
+        <item>06/11/2020</item>
+        <item>06/11/2020</item>
+        <item>06/11/2020</item>
+    </string-array>
+
+    <string-array name="datas_previsao">
+        <item>30/11/2020</item>
+        <item>30/11/2020</item>
+        <item>30/11/2020</item>
+        <item>30/11/2020</item>
+        <item>30/11/2020</item>
+        <item>30/11/2020</item>
+        <item>30/11/2020</item>
+    </string-array>
 </resources>
