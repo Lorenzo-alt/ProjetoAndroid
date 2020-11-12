@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/box_linha_rv"
+        android:width="1400dp"
+        android:height="600dp"/>
+</layer-list>

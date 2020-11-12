@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view"
+    >
+
+    <item android:id="@+id/categoria1"
+        android:icon="@drawable/ic_bookmark_400"
+        android:title="Estudo"/>
+    <item android:id="@+id/categoria2"
+        android:icon="@drawable/ic_xml_file_96"
+        android:title="Codar"/>
+    <item android:id="@+id/categoria3"
+        android:icon="@drawable/ic_document_delivery_64"
+        android:title="Entrega"/>
+    <item android:id="@+id/categoria4"
+        android:icon="@drawable/ic_scroll_256"
+        android:title="Ingles"/>
+    <item android:id="@+id/categoria5"
+        android:icon="@drawable/ic_scroll_256"
+        android:title="Ingles"/>
+    <item android:id="@+id/categoria6"
+        android:icon="@drawable/ic_scroll_256"
+        android:title="Ingles"/>
+    <item android:id="@+id/categoria7"
+        android:icon="@drawable/ic_scroll_256"
+        android:title="Ingles"/>
+    <item android:id="@+id/categoria8"
+        android:icon="@drawable/ic_scroll_256"
+        android:title="Ingles"/>
+    <item android:id="@+id/categoria9"
+        android:icon="@drawable/ic_scroll_256"
+        android:title="Ingles"/>
+    <item android:id="@+id/categoria10"
+        android:icon="@drawable/ic_scroll_256"
+        android:title="Ingles"/>
+    <item android:id="@+id/categoria11"
+        android:icon="@drawable/ic_scroll_256"
+        android:title="Ingles"/>
+
+</menu>
