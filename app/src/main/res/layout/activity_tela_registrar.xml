@@ -32,16 +32,17 @@
                 android:layout_marginBottom="15dp"
                 android:gravity="center"
                 android:textColorHint="#FFFFFF"
-                app:startIconDrawable="@drawable/ic_usuario_24dp"
+                app:startIconDrawable="@drawable/ic_email_24"
                 app:startIconTint="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/loginNovoUsuarioText"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
                     android:background="#00FFFFFF"
-                    android:hint="Usuario"
+                    android:hint="E-mail"
                     android:inputType="text"
                     android:textColor="#FFFFFF"
                     android:textColorHint="#FFFFFF"
@@ -58,6 +59,7 @@
                 app:startIconTint="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/senhaNovoUsuarioText"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="10dp"
@@ -81,6 +83,7 @@
                 app:startIconTint="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/senhaConfirmar"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="10dp"
@@ -104,12 +107,13 @@
                 app:startIconTint="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/username"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
                     android:background="#00FFFFFF"
-                    android:hint="E-mail"
+                    android:hint="Usuário"
                     android:inputType="textEmailAddress"
                     android:textColor="#FFFFFF"
                     android:textColorHint="#FFFFFF"

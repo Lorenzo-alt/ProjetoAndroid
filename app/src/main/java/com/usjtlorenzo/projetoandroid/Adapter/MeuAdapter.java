@@ -1,4 +1,4 @@
-package com.usjtlorenzo.projetoandroid;
+package com.usjtlorenzo.projetoandroid.Adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.usjtlorenzo.projetoandroid.R;
 
 public class MeuAdapter extends RecyclerView.Adapter<MeuAdapter.MeuViewHolder> {
 

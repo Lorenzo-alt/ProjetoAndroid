@@ -15,65 +15,67 @@
         tools:context=".MainActivity">
 
         <LinearLayout
-            android:id="@+id/linearLayout"
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="310dp"
+        android:background="@drawable/shadow_container_login"
+        android:orientation="vertical"
+        android:paddingLeft="60dp"
+        android:paddingTop="60dp"
+        android:paddingRight="60dp"
+        app:layout_constraintTop_toBottomOf="@+id/cabecalho"
+        tools:layout_editor_absoluteX="0dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/et_usuario"
             android:layout_width="match_parent"
-            android:layout_height="310dp"
-            android:background="@drawable/shadow_container_login"
-            android:orientation="vertical"
-            android:paddingLeft="60dp"
-            android:paddingTop="60dp"
-            android:paddingRight="60dp"
-            app:layout_constraintTop_toBottomOf="@+id/cabecalho"
-            tools:layout_editor_absoluteX="0dp">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:gravity="center"
+            android:textColorHint="#FFFFFF"
+            app:boxBackgroundColor="#FFFFFF"
+            app:startIconDrawable="@drawable/ic_email_24"
+            app:startIconTint="@color/white">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/et_usuario"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/loginEditText"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="15dp"
-                android:gravity="center"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="#00FFFFFF"
+                android:hint="Usuario"
+                android:inputType="text"
+                android:textColor="#FFFFFF"
                 android:textColorHint="#FFFFFF"
-                app:boxBackgroundColor="#FFFFFF"
-                app:startIconDrawable="@drawable/ic_usuario_24dp"
-                app:startIconTint="@color/white">
+                android:textSize="18sp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:background="#00FFFFFF"
-                    android:hint="Usuario"
-                    android:inputType="text"
-                    android:textColor="#FFFFFF"
-                    android:textColorHint="#FFFFFF"
-                    android:textSize="18sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/et_senha"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColorHint="#FFFFFF"
+            app:startIconDrawable="@drawable/ic_senha_24"
+            app:startIconTint="@color/white">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/et_senha"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/senhaEditText"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="#00FFFFFF"
+                android:hint="Senha"
+                android:inputType="textPassword"
+                android:textColor="#FFFFFF"
                 android:textColorHint="#FFFFFF"
-                app:startIconDrawable="@drawable/ic_senha_24"
-                app:startIconTint="@color/white">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:background="#00FFFFFF"
-                    android:hint="Senha"
-                    android:inputType="textPassword"
-                    android:textColor="#FFFFFF"
-                    android:textColorHint="#FFFFFF"
-                    android:textSize="18sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-        </LinearLayout>
+                android:textSize="18sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
 
         <Button
-            android:id="@+id/bt_registrar"
+            android:id="@+id/bt_login"
             android:layout_width="200dp"
             android:layout_height="60dp"
             android:background="@drawable/button_layout"
