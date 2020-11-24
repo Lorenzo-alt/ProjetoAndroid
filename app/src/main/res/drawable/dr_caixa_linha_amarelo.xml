@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item><shape android:tintMode="multiply">
+        <stroke android:color="#8b8d4d" android:width="5dp"/>
+        <solid android:color="#8b8d4d" />
+        <corners android:radius="10dp"/>
+        <padding android:bottom="10dp"/>
+        <size android:width="280dp" android:height="100dp"/>
+    </shape></item>
+    <item><shape android:tintMode="multiply">
+        <stroke android:color="#d9d967" android:width="5dp"/>
+        <solid android:color="#d9d967"/>
+        <corners android:radius="10dp"/>
+        <size android:width="100dp" android:height="100dp"/>
+    </shape></item>
+</layer-list>
