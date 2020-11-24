@@ -28,4 +28,16 @@
         <item name="colorAccent">#3a4c60</item>
         <item name="colorPrimary">#3a4c60</item>
     </style>
+
+    <style name="TextAppearance.MeuText" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Theme.DialogLembrete" parent="Widget.Design.TextInputLayout">
+        <item name="colorPrimary">#1d1e22</item>
+        <item name="colorOnPrimary">#1d1e22</item>
+        <item name="colorOnSecondary">#1d1e22</item>
+        <item name="android:textSize">32sp</item>
+    </style>
+
 </resources>

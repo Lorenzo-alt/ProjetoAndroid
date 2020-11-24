@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#818181"
     android:isScrollContainer="false">
 
     <androidx.cardview.widget.CardView
@@ -49,7 +50,7 @@
         tools:layout_editor_absoluteX="16dp">
 
         <Button
-            android:id="@+id/btn_criarCategoria"
+            android:id="@+id/btn_criarLembrete"
             android:layout_width="80dp"
             android:layout_height="35dp"
             android:layout_gravity="end|center_horizontal"
@@ -94,7 +95,7 @@
                 android:textSize="20sp" />
 
             <EditText
-                android:id="@+id/et_nomeCategoria"
+                android:id="@+id/et_nomeLembrete"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
@@ -120,8 +121,8 @@
                 android:textColor="#1d1e22"
                 android:textSize="20sp" />
 
-            <EditText
-                android:id="@+id/et_dataRealizacao"
+            <RelativeLayout
+                android:id="@+id/relaTivel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
@@ -129,14 +130,35 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="24dp"
                 android:layout_marginRight="24dp"
-                android:background="@drawable/round_borda"
-                android:drawableRight="@drawable/ic_baseline_calendar_today_24"
-                android:drawablePadding="16dp"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:paddingBottom="5dp"
-                android:text="CSA"
-                android:textColor="#1D1E22" />
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/et_dataRealizacao"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_toStartOf="@+id/img_calendario"
+                    android:layout_toLeftOf="@+id/img_calendario"
+                    android:background="@drawable/round_borda"
+                    android:ems="10"
+                    android:hint="00/00/0000"
+                    android:inputType="date"
+                    android:paddingBottom="5dp"
+                    android:textColor="#1D1E22" />
+
+                <ImageView
+                    android:id="@+id/img_calendario"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="3dp"
+                    android:src="@drawable/ic_baseline_calendar_today_24"
+                    tools:ignore="NotSibling" />
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/textView6"
@@ -150,16 +172,16 @@
                 android:textSize="20sp" />
 
             <Spinner
-                android:id="@+id/spinner"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
+                android:id="@+id/spinnerCategoriaL"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:layout_marginLeft="24dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="24dp"
                 android:layout_marginRight="24dp"
-                android:background="@drawable/round_borda"
-                android:paddingBottom="5dp" />
+                android:background="@drawable/borda_spinners"
+                android:paddingRight="40dp" />
 
             <TextView
                 android:id="@+id/textView4"
@@ -173,17 +195,17 @@
                 android:textSize="20sp" />
 
             <Spinner
-                android:id="@+id/spinner2"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
+                android:id="@+id/spinnerCor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:layout_marginLeft="24dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="24dp"
                 android:layout_marginRight="24dp"
                 android:layout_marginBottom="20dp"
-                android:background="@drawable/round_borda"
-                android:paddingBottom="5dp" />
+                android:background="@drawable/borda_spinners"
+                android:paddingRight="40dp" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

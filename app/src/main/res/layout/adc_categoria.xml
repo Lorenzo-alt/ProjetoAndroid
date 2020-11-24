@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#818181"
     android:theme="@style/Theme.AppCompat.DayNight">
 
     <androidx.cardview.widget.CardView
@@ -130,7 +130,9 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="24dp"
                 android:layout_marginRight="24dp"
-                android:layout_marginBottom="14dp"/>
+                android:layout_marginBottom="14dp"
+                android:background="@drawable/borda_spinners"
+                android:paddingRight="40dp" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

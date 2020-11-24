@@ -46,5 +46,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore:21.4.0'
     implementation 'com.google.firebase:firebase-core:17.0.0'
     implementation 'com.google.firebase:firebase-database:18.0.0'
+    implementation 'com.firebaseui:firebase-ui-database:6.4.0'
     implementation "androidx.multidex:multidex:2.0.1"
 }
