@@ -6,28 +6,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Canvas;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -38,23 +33,26 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.usjtlorenzo.projetoandroid.Adapter.IconeAdapter;
+import com.usjtlorenzo.projetoandroid.Adapter.NaviAdapter;
 import com.usjtlorenzo.projetoandroid.Adapter.RecyclerAdapter;
 import com.usjtlorenzo.projetoandroid.Modelos.Categoria;
 import com.usjtlorenzo.projetoandroid.Modelos.IconeItem;
 import com.usjtlorenzo.projetoandroid.Modelos.Lembrete;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
-public class TelaPrincipal extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RecyclerAdapter.OnLembreteItemListener {
+public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCategoriaItemClick, RecyclerAdapter.OnLembreteItemListener, NaviAdapter.OnCategoriaItemLongClick {
 
     private RecyclerView rv_lembretes;
+    private RecyclerView rv_categorias;
 
     private DrawerLayout dl;
     private NavigationView navigationView;
@@ -64,14 +62,18 @@ public class TelaPrincipal extends AppCompatActivity implements NavigationView.O
     private FloatingActionButton fb_addLembrete;
     private IconeItem iconeItem;
     private IconeItem corItem;
+    private ArrayList<IconeItem> corList = new ArrayList<>();
+    private ArrayList<IconeItem> categoriaList = new ArrayList<>();
     private IconeItem categoriaItem;
     private RecyclerAdapter meuAdapter;
+    private NaviAdapter meuNaviAdapter;
 
     private FirebaseUser mUser;
     private DatabaseReference reference;
     private ArrayList<Categoria> minhasCategoria;
     private ArrayList<Lembrete> meusLembretes;
-    private ArrayList<String[]> meusIds;
+    private ArrayList<Lembrete> todosLembretes;
+    private String idLembrete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,33 +105,8 @@ public class TelaPrincipal extends AppCompatActivity implements NavigationView.O
 
         // Trabalhando com o navi view
         navigationView = findViewById(R.id.nav_principal);
-        navigationView.setItemIconTintList(null);
-        navigationView.setNavigationItemSelectedListener(this::onNavigationItemSelected);
-        Menu menu = navigationView.getMenu();
-        menu.clear();
+        atualizarNaviView();
 
-        minhasCategoria = new ArrayList<>();
-        reference = FirebaseDatabase.getInstance().getReference().child("Usuarios").child(mUser.getUid()).child("categoria");
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                minhasCategoria.clear();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Categoria categoria = dataSnapshot.getValue(Categoria.class);
-
-                    if(!minhasCategoria.contains(categoria)){
-                        minhasCategoria.add(categoria);
-                    }
-
-                }
-                atualizarNaviView();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
 
 
         // Colocar a função de adicionar categoria
@@ -144,7 +121,7 @@ public class TelaPrincipal extends AppCompatActivity implements NavigationView.O
                 iconeList.add(new IconeItem("Bookmark", R.drawable.ic_bookmark_400));
                 iconeList.add(new IconeItem("Document", R.drawable.ic_document_delivery_64));
                 iconeList.add(new IconeItem("Scroll", R.drawable.ic_scroll_256));
-                iconeList.add(new IconeItem("XML File", R.drawable.ic_xml_file_96));
+                iconeList.add(new IconeItem("File", R.drawable.ic_xml_file_96));
 
                 Spinner spinnerIcone = popout.findViewById(R.id.escolhaIcone);
 
@@ -173,8 +150,8 @@ public class TelaPrincipal extends AppCompatActivity implements NavigationView.O
                     @Override
                     public void onClick(View view) {
                         EditText et_nomeCategoria = popout.findViewById(R.id.et_nomeCategoria);
-                        String nomeCategoria = et_nomeCategoria.getText().toString();
-                        if (!nomeCategoria.equals("")){
+                        String nomeCategoria = et_nomeCategoria.getText().toString().trim();
+                        if (!TextUtils.isEmpty(nomeCategoria)){
                             criarCategoria(mUser.getUid(), nomeCategoria, iconeItem.getNomeIconeCor());
                         }else{
                             Toast.makeText(TelaPrincipal.this, "Verifique se os campos estão vazios", Toast.LENGTH_LONG).show();
@@ -187,120 +164,98 @@ public class TelaPrincipal extends AppCompatActivity implements NavigationView.O
             }
         });
 
-        // Adiocionar lembrete
+        // Adicionar lembrete
         fb_addLembrete = findViewById(R.id.fb_addLembrete);
         fb_addLembrete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Calendar calendar = Calendar.getInstance();
-                int dia = calendar.get(Calendar.DAY_OF_MONTH);
-                int mes = calendar.get(Calendar.MONTH);
-                int ano = calendar.get(Calendar.YEAR);
-                dialogBuilder = new AlertDialog.Builder(TelaPrincipal.this);
-                View popout = getLayoutInflater().inflate(R.layout.adc_lembrete, null);
-                final EditText et_dataRealizacao = popout.findViewById(R.id.et_dataRealizacao);
+                if (minhasCategoria.size() >= 2) {
+                    Calendar calendar = Calendar.getInstance();
+                    int dia = calendar.get(Calendar.DAY_OF_MONTH);
+                    int mes = calendar.get(Calendar.MONTH);
+                    int ano = calendar.get(Calendar.YEAR);
+                    dialogBuilder = new AlertDialog.Builder(TelaPrincipal.this);
+                    View popout = getLayoutInflater().inflate(R.layout.adc_lembrete, null);
+                    final EditText et_dataRealizacao = popout.findViewById(R.id.et_dataRealizacao);
 
-                // Alimentando Spinner de cores
-                final ArrayList<IconeItem> corList = new ArrayList<>();
-                corList.add(new IconeItem("Vermelho", R.drawable.cor_item_vermelho));
-                corList.add(new IconeItem("Azul", R.drawable.cor_item_azul));
-                corList.add(new IconeItem("Verde", R.drawable.cor_item_verde));
-                corList.add(new IconeItem("Amarelo", R.drawable.cor_item_amarelo));
+                    // Alimentando Spinner de cores
+                    Spinner spinnerCor = gerandoSpinnerCor(popout.findViewById(R.id.spinnerCor));
 
-                Spinner spinnerCor = popout.findViewById(R.id.spinnerCor);
-
-                IconeAdapter corAdapter = new IconeAdapter(getBaseContext(), corList);
-                spinnerCor.setAdapter(corAdapter);
-
-                spinnerCor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                        corItem = (IconeItem) adapterView.getItemAtPosition(i);
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> adapterView) {
-                        corItem = corList.get(0);
-                    }
-                });
-
-                // Alimentando Spinner de categorias no lembrete
-                final ArrayList<IconeItem> categoriaList = new ArrayList<>();
-                for (Categoria categoria : minhasCategoria){
-                    if (categoria.getIcone().equals("Bookmark")){
-                        categoriaList.add(new IconeItem(categoria.getNome(), R.drawable.ic_bookmark_400));
-                    } else if (categoria.getIcone().equals("Document")) {
-                        categoriaList.add(new IconeItem(categoria.getNome(), R.drawable.ic_document_delivery_64));
-                    } else if (categoria.getIcone().equals("Scroll")) {
-                        categoriaList.add(new IconeItem(categoria.getNome(), R.drawable.ic_scroll_256));
-                    } else if (categoria.getIcone().equals("XML File")) {
-                        categoriaList.add(new IconeItem(categoria.getNome(), R.drawable.ic_xml_file_96));
-                    }
-                }
-
-                Spinner spinnerCategoriaL = popout.findViewById(R.id.spinnerCategoriaL);
-
-                IconeAdapter categoriaAdapter = new IconeAdapter(getBaseContext(), categoriaList);
-                spinnerCategoriaL.setAdapter(categoriaAdapter);
-
-                spinnerCategoriaL.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                        categoriaItem = (IconeItem) adapterView.getItemAtPosition(i);
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> adapterView) {
-                        categoriaItem = categoriaList.get(0);
-                    }
-                });
-
-                popout.findViewById(R.id.fecharAdcLembrete).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-                    }
-                });
-
-                popout.findViewById(R.id.img_calendario).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        DatePickerDialog datePickerDialog = new DatePickerDialog(TelaPrincipal.this, R.style.Theme_meuDateDialog, new DatePickerDialog.OnDateSetListener() {
-                            @Override
-                            public void onDateSet(DatePicker datePicker, int ano, int mes, int dia) {
-                                mes = mes+1;
-                                et_dataRealizacao.setText(dia + "/" + mes + "/" + ano);
-                            }
-                        }, ano, mes, dia
-                        );
-                        int newColor = ContextCompat.getColor(view.getContext(), R.color.paleta_bars);
-                        datePickerDialog.show();
-                        datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(newColor);
-                        datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(newColor);
-                    }
-                });
-                popout.findViewById(R.id.btn_criarLembrete).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        EditText et_nomeLembrete = popout.findViewById(R.id.et_nomeLembrete);
-                        EditText et_data = popout.findViewById(R.id.et_dataRealizacao);
-                        String nomeLembrete = et_nomeLembrete.getText().toString().trim();
-                        String data = et_data.getText().toString().trim();
-                        String cor = corItem.getNomeIconeCor().trim();
-                        String categoriaFinal = categoriaItem.getNomeIconeCor().trim();
-
-                        if (!(TextUtils.isEmpty(nomeLembrete) || TextUtils.isEmpty(data) || TextUtils.isEmpty(cor) || TextUtils.isEmpty(categoriaFinal))){
-                            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                            Date d = calendar.getTime();
-                            criarLembrete(mUser.getUid(), nomeLembrete, data, sdf.format(d), cor, categoriaFinal);
-                        } else{
-                            Toast.makeText(TelaPrincipal.this, "Verifique se todos os campos foram preenchidos corretamente!", Toast.LENGTH_LONG).show();
+                    spinnerCor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                            corItem = (IconeItem) adapterView.getItemAtPosition(i);
                         }
-                    }
-                });
-                dialogBuilder.setView(popout);
-                dialog = dialogBuilder.create();
-                dialog.show();
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> adapterView) {
+                            corItem = corList.get(0);
+                        }
+                    });
+
+                    // Alimentando Spinner de categorias no lembrete
+                    Spinner spinnerCategoriaL = gerandoSpinnerCategoria(popout.findViewById(R.id.spinnerCategoriaL));
+
+                    spinnerCategoriaL.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                            categoriaItem = (IconeItem) adapterView.getItemAtPosition(i);
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> adapterView) {
+                            categoriaItem = categoriaList.get(0);
+                        }
+                    });
+
+                    popout.findViewById(R.id.fecharAdcLembrete).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    popout.findViewById(R.id.img_calendario).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            DatePickerDialog datePickerDialog = new DatePickerDialog(TelaPrincipal.this, R.style.Theme_meuDateDialog, new DatePickerDialog.OnDateSetListener() {
+                                @Override
+                                public void onDateSet(DatePicker datePicker, int ano, int mes, int dia) {
+                                    mes = mes + 1;
+                                    et_dataRealizacao.setText(dia + "/" + mes + "/" + ano);
+                                }
+                            }, ano, mes, dia
+                            );
+                            int newColor = ContextCompat.getColor(view.getContext(), R.color.paleta_bars);
+                            datePickerDialog.show();
+                            datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(newColor);
+                            datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(newColor);
+                        }
+                    });
+                    popout.findViewById(R.id.btn_criarLembrete).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            EditText et_nomeLembrete = popout.findViewById(R.id.et_nomeLembrete);
+                            String nomeLembrete = et_nomeLembrete.getText().toString().trim();
+                            String data = et_dataRealizacao.getText().toString().trim();
+                            String cor = corItem.getNomeIconeCor().trim();
+                            String categoriaFinal = categoriaItem.getNomeIconeCor().trim();
+
+                            if (!(TextUtils.isEmpty(nomeLembrete) || TextUtils.isEmpty(data) || TextUtils.isEmpty(cor) || TextUtils.isEmpty(categoriaFinal))) {
+                                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+                                Date d = calendar.getTime();
+                                criarLembrete(mUser.getUid(), nomeLembrete, data.replace("/", "-"), sdf.format(d), cor, categoriaFinal);
+                            } else {
+                                Toast.makeText(TelaPrincipal.this, "Verifique se todos os campos foram preenchidos corretamente!", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+                    dialogBuilder.setView(popout);
+                    dialog = dialogBuilder.create();
+                    dialog.show();
+                }else{
+                    Toast.makeText(TelaPrincipal.this, "Não é possivel criar um lembrete sem uma categoria! Crie uma primeiro!", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -309,6 +264,40 @@ public class TelaPrincipal extends AppCompatActivity implements NavigationView.O
 
     }
 
+    private Spinner gerandoSpinnerCor(Spinner spinnerCorRecebido){
+        corList.clear();
+        corList.add(new IconeItem("Vermelho", R.drawable.cor_item_vermelho));
+        corList.add(new IconeItem("Azul", R.drawable.cor_item_azul));
+        corList.add(new IconeItem("Verde", R.drawable.cor_item_verde));
+        corList.add(new IconeItem("Amarelo", R.drawable.cor_item_amarelo));
+
+        Spinner spinnerCor = spinnerCorRecebido;
+
+        IconeAdapter corAdapter = new IconeAdapter(getBaseContext(), corList);
+        spinnerCor.setAdapter(corAdapter);
+
+        return spinnerCor;
+    }
+    private Spinner gerandoSpinnerCategoria(Spinner spinnerCategoriaRecebido){
+        categoriaList.clear();
+        for (Categoria categoria : minhasCategoria){
+            if (categoria.getIcone().equals("Bookmark")){
+                categoriaList.add(new IconeItem(categoria.getNome(), R.drawable.ic_bookmark_400));
+            } else if (categoria.getIcone().equals("Document")) {
+                categoriaList.add(new IconeItem(categoria.getNome(), R.drawable.ic_document_delivery_64));
+            } else if (categoria.getIcone().equals("Scroll")) {
+                categoriaList.add(new IconeItem(categoria.getNome(), R.drawable.ic_scroll_256));
+            } else if (categoria.getIcone().equals("File")) {
+                categoriaList.add(new IconeItem(categoria.getNome(), R.drawable.ic_xml_file_96));
+            }
+        }
+
+        Spinner spinnerCategoriaL = spinnerCategoriaRecebido;
+
+        IconeAdapter categoriaAdapter = new IconeAdapter(getBaseContext(), categoriaList);
+        spinnerCategoriaL.setAdapter(categoriaAdapter);
+        return spinnerCategoriaL;
+    }
 
     private void criarLembrete(String uid, String nomeLembrete, String data, String dataCriacao, String cor, String categoriaFinal) {
         reference = FirebaseDatabase.getInstance().getReference().child("Usuarios").child(uid).child("lembrete");
@@ -320,41 +309,73 @@ public class TelaPrincipal extends AppCompatActivity implements NavigationView.O
         hashMap.put("cor", cor);
         hashMap.put("correlacao", categoriaFinal);
 
-        reference.push().setValue(hashMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(TelaPrincipal.this, "Lembrete: [" + nomeLembrete + "] adicionado com sucesso", Toast.LENGTH_LONG).show();
-                dialog.dismiss();
+        boolean resp = true;
+        for (Lembrete temp1 : meusLembretes){
+            if (temp1.getNome().equalsIgnoreCase(nomeLembrete)){
+                resp = false;
+            } else{
+                resp = true;
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(TelaPrincipal.this, "Erro na criação do lembrete, tente novamente!", Toast.LENGTH_LONG).show();
-            }
-        });
+        }
+
+        if (resp == true) {
+
+            reference.push().setValue(hashMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(TelaPrincipal.this, "Lembrete: [ " + nomeLembrete + " ] adicionado com sucesso", Toast.LENGTH_LONG).show();
+                    dialog.dismiss();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(TelaPrincipal.this, "Erro na criação do lembrete, tente novamente!", Toast.LENGTH_LONG).show();
+                }
+            });
+        }else{
+            Toast.makeText(this, "Já existe lembrete com esse nome", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void atualizarRecyclerView(){
         rv_lembretes = findViewById(R.id.rv_lembretes);
         rv_lembretes.setLayoutManager( new LinearLayoutManager(this));
 
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+
         meusLembretes = new ArrayList<>();
-        meusIds = new ArrayList<>();
+        todosLembretes = new ArrayList<>();
         reference = FirebaseDatabase.getInstance().getReference().child("Usuarios").child(mUser.getUid()).child("lembrete");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 meusLembretes.clear();
-                meusIds.clear();
+                todosLembretes.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()){
                     Lembrete lembrete = dataSnapshot.getValue(Lembrete.class);
-                    meusIds.add(new String[]{dataSnapshot.getKey(), lembrete.getNome()});
                     if (lembrete.getCorrelacao().equalsIgnoreCase(categoria)){
                         meusLembretes.add(lembrete);
                     }else if(categoria.equalsIgnoreCase("Mostrar Todos Lembretes!")){
                         meusLembretes.add(lembrete);
                     }
+                    todosLembretes.add(lembrete);
                 }
+                Lembrete temp = null;
+                    for (int i = 0; i < meusLembretes.size(); i++){
+                        for (int j = i+1; j<meusLembretes.size(); j++){
+                            try {
+                                Date d1 = sdf.parse(meusLembretes.get(i).getData());
+                                Date d2 = sdf.parse(meusLembretes.get(j).getData());
+                                if (d1.compareTo(d2) > 0){
+                                    temp = meusLembretes.get(i);
+                                    meusLembretes.set(i, meusLembretes.get(j));
+                                    meusLembretes.set(j, temp);
+                                }
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                 meuAdapter = new RecyclerAdapter(TelaPrincipal.this, meusLembretes, TelaPrincipal.this);
                 rv_lembretes.setAdapter(meuAdapter);
             }
@@ -374,41 +395,66 @@ public class TelaPrincipal extends AppCompatActivity implements NavigationView.O
         hashMap.put("nome", nomeCategoria);
         hashMap.put("icone", iconeItem);
 
-        reference.push().setValue(hashMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(TelaPrincipal.this, "Categoria [" + nomeCategoria + "] adicionada com sucesso", Toast.LENGTH_LONG).show();
-                dialog.dismiss();
+        boolean resp = true;
+        for (Categoria temp : minhasCategoria){
+            if (temp.getNome().equalsIgnoreCase(nomeCategoria)){
+                resp = false;
+            } else{
+                resp = true;
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(TelaPrincipal.this, "Erro na criação da categoria, tente novamente!", Toast.LENGTH_LONG).show();
-            }
-        });
+        }
+
+        if (resp == true) {
+            reference.push().setValue(hashMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(TelaPrincipal.this, "Categoria [ " + nomeCategoria + " ] adicionada com sucesso", Toast.LENGTH_LONG).show();
+                    dialog.dismiss();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(TelaPrincipal.this, "Erro na criação da categoria, tente novamente!", Toast.LENGTH_LONG).show();
+                }
+            });
+        }else{
+            Toast.makeText(this, "Já existe uma categoria com esse nome!", Toast.LENGTH_SHORT).show();
+        }
         atualizarNaviView();
     }
 
     private void atualizarNaviView() {
         navigationView = findViewById(R.id.nav_principal);
-        navigationView.setItemIconTintList(null);
-        Menu menu = navigationView.getMenu();
+        rv_categorias = findViewById(R.id.rv_categorias);
+        rv_categorias.setLayoutManager( new LinearLayoutManager(this));
 
-        menu.clear();
-        menu.add(1, 0, 0, "Mostrar Todos Lembretes!");
+        minhasCategoria = new ArrayList<>();
+        reference = FirebaseDatabase.getInstance().getReference().child("Usuarios").child(mUser.getUid()).child("categoria");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                minhasCategoria.clear();
+                Categoria categoriaTodos = new Categoria("Mostrar Todos Lembretes!", "null");
+                if (!minhasCategoria.contains(categoriaTodos)){
+                    minhasCategoria.add(0, categoriaTodos);
+                }
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Categoria categoria = dataSnapshot.getValue(Categoria.class);
 
-        for(Categoria categoria : minhasCategoria){
-            if (categoria.getIcone().equals("Bookmark")){
-                menu.add(categoria.getNome()).setIcon(R.drawable.ic_bookmark_400);
-            } else if (categoria.getIcone().equals("Document")) {
-                menu.add(categoria.getNome()).setIcon(R.drawable.ic_document_delivery_64);
-            } else if (categoria.getIcone().equals("Scroll")) {
-                menu.add(categoria.getNome()).setIcon(R.drawable.ic_scroll_256);
-            } else if (categoria.getIcone().equals("XML File")) {
-                menu.add(categoria.getNome()).setIcon(R.drawable.ic_xml_file_96);
+                    if(!minhasCategoria.contains(categoria)){
+                        minhasCategoria.add(categoria);
+                    }
+
+                }
+                meuNaviAdapter = new NaviAdapter(minhasCategoria, TelaPrincipal.this, TelaPrincipal.this, TelaPrincipal.this);
+                rv_categorias.setAdapter(meuNaviAdapter);
             }
-        }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     @Override
@@ -420,12 +466,13 @@ public class TelaPrincipal extends AppCompatActivity implements NavigationView.O
         }
     }
 
+
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        categoria = item.getTitle().toString();
+    public void onCategoriaItemClick(int position) {
+        final Categoria categoriaAtual = minhasCategoria.get(position);
+        categoria = categoriaAtual.getNome();
         dl.closeDrawer(GravityCompat.START);
         atualizarRecyclerView();
-        return true;
     }
 
     @Override
@@ -441,19 +488,13 @@ public class TelaPrincipal extends AppCompatActivity implements NavigationView.O
         EditText et_dataCriacao = popout.findViewById(R.id.dtCriacaoEditText);
         EditText et_tarefa = popout.findViewById(R.id.tarefaEditText);
 
-        et_dataRealizacao.setText(lembrete.getData());
-        et_dataCriacao.setText(lembrete.getReal_data());
+        et_dataRealizacao.setText(lembrete.getData().replace("-", "/"));
+        et_dataCriacao.setText(lembrete.getReal_data().replace("-", "/"));
         et_dataCriacao.setFocusable(false);
         et_dataCriacao.setClickable(false);
         et_tarefa.setText(lembrete.getNome());
 
-        final ArrayList<IconeItem> corList = new ArrayList<>();
-        corList.add(new IconeItem("Vermelho", R.drawable.cor_item_vermelho));
-        corList.add(new IconeItem("Azul", R.drawable.cor_item_azul));
-        corList.add(new IconeItem("Verde", R.drawable.cor_item_verde));
-        corList.add(new IconeItem("Amarelo", R.drawable.cor_item_amarelo));
-
-        Spinner spinnerCor = popout.findViewById(R.id.spinnerCorAtual);
+        Spinner spinnerCor = gerandoSpinnerCor(popout.findViewById(R.id.spinnerCorAtual));
 
         IconeAdapter corAdapter = new IconeAdapter(getBaseContext(), corList);
         spinnerCor.setAdapter(corAdapter);
@@ -479,23 +520,8 @@ public class TelaPrincipal extends AppCompatActivity implements NavigationView.O
             }
         });
 
-        final ArrayList<IconeItem> categoriaList = new ArrayList<>();
-        for (Categoria categoria : minhasCategoria){
-            if (categoria.getIcone().equals("Bookmark")){
-                categoriaList.add(new IconeItem(categoria.getNome(), R.drawable.ic_bookmark_400));
-            } else if (categoria.getIcone().equals("Document")) {
-                categoriaList.add(new IconeItem(categoria.getNome(), R.drawable.ic_document_delivery_64));
-            } else if (categoria.getIcone().equals("Scroll")) {
-                categoriaList.add(new IconeItem(categoria.getNome(), R.drawable.ic_scroll_256));
-            } else if (categoria.getIcone().equals("XML File")) {
-                categoriaList.add(new IconeItem(categoria.getNome(), R.drawable.ic_xml_file_96));
-            }
-        }
-
-        Spinner spinnerCategoriaL = popout.findViewById(R.id.spinnerCategoriaAtual);
-
-        IconeAdapter categoriaAdapter = new IconeAdapter(getBaseContext(), categoriaList);
-        spinnerCategoriaL.setAdapter(categoriaAdapter);
+        Spinner spinnerCategoriaL = gerandoSpinnerCategoria(popout.findViewById(R.id.spinnerCategoriaAtual));
+                
         for (IconeItem item : categoriaList){
             if (item.getNomeIconeCor().equalsIgnoreCase(lembrete.getCorrelacao())) {
                 spinnerCategoriaL.setSelection(categoriaList.indexOf(item));
@@ -548,10 +574,13 @@ public class TelaPrincipal extends AppCompatActivity implements NavigationView.O
                 dialog.dismiss();
             }
         });
+
         popout.findViewById(R.id.btnSalvar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                idLembrete = null;
                 reference = FirebaseDatabase.getInstance().getReference().child("Usuarios").child(mUser.getUid()).child("lembrete");
+                Query mQueryUpdate = reference.orderByChild("nome").equalTo(lembrete.getNome());
 
                 String nomeLembrete = et_tarefa.getText().toString();
                 String data = et_dataRealizacao.getText().toString();
@@ -561,40 +590,33 @@ public class TelaPrincipal extends AppCompatActivity implements NavigationView.O
 
                 HashMap<String, Object> hashMap = new HashMap<>();
                 hashMap.put("nome", nomeLembrete);
-                hashMap.put("data", data);
-                hashMap.put("real_data", dataCriacao);
+                hashMap.put("data", data.replace("/", "-"));
+                hashMap.put("real_data", dataCriacao.replace("/", "-"));
                 hashMap.put("cor", cor);
                 hashMap.put("correlacao", categoriaFinal);
 
-//                FirebaseRecyclerAdapter<Lembrete, RecyclerAdapter.myViewHolder> firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<Lembrete, RecyclerAdapter.myViewHolder>() {
-//                    @Override
-//                    protected void onBindViewHolder(@NonNull RecyclerAdapter.myViewHolder holder, int position, @NonNull Lembrete model) {
-//                        String userId = getRef(position).getKey();
-//                    }
-//
-//                    @NonNull
-//                    @Override
-//                    public RecyclerAdapter.myViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-//                        return null;
-//                    }
-//                };
-
-                String lembreteId = null;
-                for (String[] test : meusIds){
-                    if (test[1].equalsIgnoreCase(lembrete.getNome())) {
-                        lembreteId = test[0];
-                    }
-                }
-
-                reference.child(lembreteId).setValue(hashMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                mQueryUpdate.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(TelaPrincipal.this, "Removido", Toast.LENGTH_SHORT).show();
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                            idLembrete = dataSnapshot.getKey();
+                            reference.child(idLembrete).setValue(hashMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(TelaPrincipal.this, "Atualizado!!", Toast.LENGTH_SHORT).show();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(TelaPrincipal.this, "Erro", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
                     }
-                }).addOnFailureListener(new OnFailureListener() {
+
                     @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(TelaPrincipal.this, "Erro", Toast.LENGTH_SHORT).show();
+                    public void onCancelled(@NonNull DatabaseError error) {
+
                     }
                 });
                 dialog.dismiss();
@@ -603,22 +625,113 @@ public class TelaPrincipal extends AppCompatActivity implements NavigationView.O
         popout.findViewById(R.id.btnExcluir).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                reference = FirebaseDatabase.getInstance().getReference().child("Usuarios").child(mUser.getUid()).child("lembrete");
+                AlertDialog.Builder builder = new AlertDialog.Builder(TelaPrincipal.this);
+                builder.setMessage("Deseja mesmo excluir o lembrete: [ " + lembrete.getNome() + " ] ?").setTitle("Tem certeza disso ?").setPositiveButton("SIM", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogDelete, int which) {
+                        reference = FirebaseDatabase.getInstance().getReference().child("Usuarios").child(mUser.getUid()).child("lembrete");
+                        Query mQueryDelete = reference.orderByChild("nome").equalTo(lembrete.getNome());
 
-                String lembreteId = null;
-                for (String[] test : meusIds){
-                    if (test[1].equalsIgnoreCase(lembrete.getNome())) {
-                        lembreteId = test[0];
+                        mQueryDelete.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                    idLembrete = dataSnapshot.getKey();
+                                    Lembrete atualLembrete = dataSnapshot.getValue(Lembrete.class);
+                                    if (atualLembrete.getNome().equalsIgnoreCase(lembrete.getNome()) && atualLembrete.getCorrelacao().equalsIgnoreCase(lembrete.getCorrelacao())){
+                                        reference.child(idLembrete).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(TelaPrincipal.this, "Removido!!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(TelaPrincipal.this, "Erro", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                        }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                        dialogDelete.dismiss();
+                        dialog.dismiss();
                     }
-                }
+                });
+                builder.setNegativeButton("NÃO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogDelete, int which) {
+                        dialogDelete.dismiss();
+                    }
+                });
 
-                reference.child(lembreteId).removeValue();
-                dialog.dismiss();
+                AlertDialog dialogDelete = builder.create();
+                dialogDelete.show();
+                int newColor = ContextCompat.getColor(view.getContext(), R.color.paleta_bars);
+                dialogDelete.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(newColor);
+                dialogDelete.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(newColor);
             }
         });
-
         dialogBuilder.setView(popout);
         dialog = dialogBuilder.create();
         dialog.show();
+    }
+
+    @Override
+    public void onCategoriaItemLongClick(final int position) {
+        final Categoria categoria = minhasCategoria.get(position);
+        AlertDialog.Builder builder = new AlertDialog.Builder(TelaPrincipal.this);
+        builder.setMessage("Deseja mesmo excluir a categoria: [ " + categoria.getNome() + " ] ?").setTitle("Tem certeza disso ?").setPositiveButton("SIM", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogDelete, int which) {
+                reference = FirebaseDatabase.getInstance().getReference().child("Usuarios").child(mUser.getUid()).child("categoria");
+                Query mQueryDelete = reference.orderByChild("nome").equalTo(categoria.getNome());
+
+                mQueryDelete.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            final String idCategoria = dataSnapshot.getKey();
+                            Categoria categoriaAtual = dataSnapshot.getValue(Categoria.class);
+                            if (categoriaAtual.getNome().equalsIgnoreCase(categoria.getNome()) && categoriaAtual.getIcone().equalsIgnoreCase(categoria.getIcone())){
+                            reference.child(idCategoria).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(TelaPrincipal.this, "Removido!!", Toast.LENGTH_SHORT).show();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(TelaPrincipal.this, "Erro", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+                dialogDelete.dismiss();
+            }
+        });
+        builder.setNegativeButton("NÃO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogDelete, int which) {
+                dialogDelete.dismiss();
+            }
+        });
+        AlertDialog dialogDelete = builder.create();
+        dialogDelete.show();
+        int newColor = ContextCompat.getColor(TelaPrincipal.this, R.color.paleta_bars);
+        dialogDelete.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(newColor);
+        dialogDelete.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(newColor);
     }
 }

@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "969648534975",
-    "firebase_url": "https://bdtestprojeto.firebaseio.com",
-    "project_id": "bdtestprojeto",
-    "storage_bucket": "bdtestprojeto.appspot.com"
+    "project_number": "64374866033",
+    "firebase_url": "https://lembretedb.firebaseio.com",
+    "project_id": "lembretedb",
+    "storage_bucket": "lembretedb.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:969648534975:android:50c879224aa551dc9d5d0a",
+        "mobilesdk_app_id": "1:64374866033:android:b7335e2ebe08352c249bd0",
         "android_client_info": {
           "package_name": "com.usjtlorenzo.projetoandroid"
         }
       },
       "oauth_client": [
         {
-          "client_id": "969648534975-4rpd6k6ql2cusjlrj1d482pk8beabrvv.apps.googleusercontent.com",
+          "client_id": "64374866033-ua8n8ke2ksr0m4k4cra4p7e5o8gt8b8m.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBio4d9BcytUK2r44ARZ5tgHDzrDWm5rJg"
+          "current_key": "AIzaSyD7Pcn1kDwQBoUTVigvjsBa_J7vIhDC8kI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "969648534975-4rpd6k6ql2cusjlrj1d482pk8beabrvv.apps.googleusercontent.com",
+              "client_id": "64374866033-ua8n8ke2ksr0m4k4cra4p7e5o8gt8b8m.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

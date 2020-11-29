@@ -70,29 +70,12 @@ public class TelaRegistrar extends AppCompatActivity {
 
     private void Registrar(String user, String login, String senha) {
         mAuth.createUserWithEmailAndPassword(login, senha).addOnSuccessListener((result) -> {
-//                            Toast.makeText(getApplicationContext(), "Usuário Cadastrado!", Toast.LENGTH_SHORT).show();
-//                            finish();
-            FirebaseUser firebaseUser = mAuth.getCurrentUser();
-            String userid = firebaseUser.getUid();
-            mRef = FirebaseDatabase.getInstance()
-                    .getReference("Usuarios")
-                    .child(userid);
-
-            HashMap<String, String> hashMap = new HashMap<>();
-            hashMap.put("id", userid);
-            hashMap.put("username", user);
-
-            mRef.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-
+                            Toast.makeText(getApplicationContext(), "Usuário Cadastrado!", Toast.LENGTH_SHORT).show();
+                            finish();
                     Intent i = new Intent(TelaRegistrar.this, MainActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(i);
                     finish();
-                }
-            });
-
         }).addOnFailureListener((exception) -> {
             exception.printStackTrace();
             Toast.makeText(getApplicationContext(), "Impossivel realizar registro, verifique todos os campos!", Toast.LENGTH_SHORT).show();

@@ -45,9 +45,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.myView
 
         Lembrete model = lembretes.get(position);
             holder.tv_tarefa.setText(model.getNome());
-            holder.tv_dtRealizacao.setText(model.getData());
+            holder.tv_dtRealizacao.setText(model.getData().replace("-", "/"));
             holder.tv_dia.setText(model.getData().substring(0, 2));
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
             GregorianCalendar gc = new GregorianCalendar();
             try {
                 gc.setTime(sdf.parse(model.getData()));
