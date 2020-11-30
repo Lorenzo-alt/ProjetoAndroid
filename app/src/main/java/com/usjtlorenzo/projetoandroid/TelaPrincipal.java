@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +36,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.santalu.maskara.Mask;
+import com.santalu.maskara.MaskChangedListener;
+import com.santalu.maskara.MaskStyle;
 import com.usjtlorenzo.projetoandroid.Adapter.IconeAdapter;
 import com.usjtlorenzo.projetoandroid.Adapter.NaviAdapter;
 import com.usjtlorenzo.projetoandroid.Adapter.RecyclerAdapter;
@@ -47,6 +51,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.EventListener;
 import java.util.HashMap;
 
 public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCategoriaItemClick, RecyclerAdapter.OnLembreteItemListener, NaviAdapter.OnCategoriaItemLongClick {
@@ -74,6 +79,7 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
     private ArrayList<Lembrete> meusLembretes;
     private ArrayList<Lembrete> todosLembretes;
     private String idLembrete;
+    private static final String TAG = "TelaPrincipal";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -241,12 +247,16 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
                             String cor = corItem.getNomeIconeCor().trim();
                             String categoriaFinal = categoriaItem.getNomeIconeCor().trim();
 
-                            if (!(TextUtils.isEmpty(nomeLembrete) || TextUtils.isEmpty(data) || TextUtils.isEmpty(cor) || TextUtils.isEmpty(categoriaFinal))) {
-                                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-                                Date d = calendar.getTime();
-                                criarLembrete(mUser.getUid(), nomeLembrete, data.replace("/", "-"), sdf.format(d), cor, categoriaFinal);
-                            } else {
-                                Toast.makeText(TelaPrincipal.this, "Verifique se todos os campos foram preenchidos corretamente!", Toast.LENGTH_LONG).show();
+                            if (data.length()<10){
+                                Toast.makeText(TelaPrincipal.this, "Preencha a data corretamente", Toast.LENGTH_LONG).show();
+                            }else {
+                                if (!(TextUtils.isEmpty(nomeLembrete) || TextUtils.isEmpty(data) || TextUtils.isEmpty(cor) || TextUtils.isEmpty(categoriaFinal))) {
+                                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+                                    Date d = calendar.getTime();
+                                    criarLembrete(mUser.getUid(), nomeLembrete, data.replace("/", "-"), sdf.format(d), cor, categoriaFinal);
+                                } else {
+                                    Toast.makeText(TelaPrincipal.this, "Verifique se todos os campos foram preenchidos corretamente!", Toast.LENGTH_LONG).show();
+                                }
                             }
                         }
                     });
@@ -588,40 +598,45 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
                 String cor = corItem.getNomeIconeCor();
                 String categoriaFinal = categoriaItem.getNomeIconeCor();
 
-                HashMap<String, Object> hashMap = new HashMap<>();
-                hashMap.put("nome", nomeLembrete);
-                hashMap.put("data", data.replace("/", "-"));
-                hashMap.put("real_data", dataCriacao.replace("/", "-"));
-                hashMap.put("cor", cor);
-                hashMap.put("correlacao", categoriaFinal);
+                if (data.length()<10){
+                    Toast.makeText(TelaPrincipal.this, "Preencha a data corretamente", Toast.LENGTH_LONG).show();
+                }else {
+                    HashMap<String, Object> hashMap = new HashMap<>();
+                    hashMap.put("nome", nomeLembrete);
+                    hashMap.put("data", data.replace("/", "-"));
+                    hashMap.put("real_data", dataCriacao.replace("/", "-"));
+                    hashMap.put("cor", cor);
+                    hashMap.put("correlacao", categoriaFinal);
 
-                mQueryUpdate.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-                            idLembrete = dataSnapshot.getKey();
-                            reference.child(idLembrete).setValue(hashMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Toast.makeText(TelaPrincipal.this, "Atualizado!!", Toast.LENGTH_SHORT).show();
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(TelaPrincipal.this, "Erro", Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                    mQueryUpdate.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                idLembrete = dataSnapshot.getKey();
+                                reference.child(idLembrete).setValue(hashMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(TelaPrincipal.this, "Atualizado!!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(TelaPrincipal.this, "Erro", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                    }
-                });
-                dialog.dismiss();
+                        }
+                    });
+                    dialog.dismiss();
+                }
             }
         });
+
         popout.findViewById(R.id.btnExcluir).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -685,53 +700,76 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
     @Override
     public void onCategoriaItemLongClick(final int position) {
         final Categoria categoria = minhasCategoria.get(position);
-        AlertDialog.Builder builder = new AlertDialog.Builder(TelaPrincipal.this);
-        builder.setMessage("Deseja mesmo excluir a categoria: [ " + categoria.getNome() + " ] ?").setTitle("Tem certeza disso ?").setPositiveButton("SIM", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogDelete, int which) {
-                reference = FirebaseDatabase.getInstance().getReference().child("Usuarios").child(mUser.getUid()).child("categoria");
-                Query mQueryDelete = reference.orderByChild("nome").equalTo(categoria.getNome());
+        if (!categoria.getNome().equals(this.categoria)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(TelaPrincipal.this);
+            builder.setMessage("Deseja mesmo excluir a categoria: [ " + categoria.getNome() + " ] ? Isso excluirá todos os lembretes relacionados a ela").setTitle("Tem certeza disso ?").setPositiveButton("SIM", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogDelete, int which) {
+                    reference = FirebaseDatabase.getInstance().getReference().child("Usuarios").child(mUser.getUid()).child("categoria");
+                    Query mQueryDelete = reference.orderByChild("nome").equalTo(categoria.getNome());
+                    DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference().child("Usuarios").child(mUser.getUid()).child("lembrete");
+                    Query mQueryLDelete = reference1.orderByChild("correlacao").equalTo(categoria.getNome());
 
-                mQueryDelete.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            final String idCategoria = dataSnapshot.getKey();
-                            Categoria categoriaAtual = dataSnapshot.getValue(Categoria.class);
-                            if (categoriaAtual.getNome().equalsIgnoreCase(categoria.getNome()) && categoriaAtual.getIcone().equalsIgnoreCase(categoria.getIcone())){
-                            reference.child(idCategoria).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Toast.makeText(TelaPrincipal.this, "Removido!!", Toast.LENGTH_SHORT).show();
+                    mQueryDelete.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                final String idCategoria = dataSnapshot.getKey();
+                                Categoria categoriaAtual = dataSnapshot.getValue(Categoria.class);
+                                if (categoriaAtual.getNome().equalsIgnoreCase(categoria.getNome()) && categoriaAtual.getIcone().equalsIgnoreCase(categoria.getIcone())) {
+                                    reference.child(idCategoria).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(TelaPrincipal.this, "Removido!!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(TelaPrincipal.this, "Erro", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+
                                 }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(TelaPrincipal.this, "Erro", Toast.LENGTH_SHORT).show();
-                                }
-                            });
                             }
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                    }
-                });
-                dialogDelete.dismiss();
-            }
-        });
-        builder.setNegativeButton("NÃO", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogDelete, int which) {
-                dialogDelete.dismiss();
-            }
-        });
-        AlertDialog dialogDelete = builder.create();
-        dialogDelete.show();
-        int newColor = ContextCompat.getColor(TelaPrincipal.this, R.color.paleta_bars);
-        dialogDelete.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(newColor);
-        dialogDelete.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(newColor);
+                        }
+                    });
+
+                    mQueryLDelete.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                final String idLembrete = dataSnapshot.getKey();
+                                Lembrete lembreteAtual = dataSnapshot.getValue(Lembrete.class);
+                                if (lembreteAtual.getCorrelacao().equalsIgnoreCase(categoria.getNome())) {
+                                    reference1.child(idLembrete).removeValue();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                    dialogDelete.dismiss();
+                }
+            });
+            builder.setNegativeButton("NÃO", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogDelete, int which) {
+                    dialogDelete.dismiss();
+                }
+            });
+            AlertDialog dialogDelete = builder.create();
+            dialogDelete.show();
+            int newColor = ContextCompat.getColor(TelaPrincipal.this, R.color.paleta_bars);
+            dialogDelete.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(newColor);
+            dialogDelete.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(newColor);
+        }
     }
 }

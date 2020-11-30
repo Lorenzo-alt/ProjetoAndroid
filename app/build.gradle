@@ -48,4 +48,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:18.0.0'
     implementation 'com.firebaseui:firebase-ui-database:6.4.0'
     implementation "androidx.multidex:multidex:2.0.1"
+    implementation 'com.github.santalu:maskara:1.0.0'
 }

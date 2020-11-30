@@ -17,6 +17,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -42,15 +43,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.myView
 
     @Override
     public void onBindViewHolder(@NonNull myViewHolder holder, int position) {
-
         Lembrete model = lembretes.get(position);
             holder.tv_tarefa.setText(model.getNome());
             holder.tv_dtRealizacao.setText(model.getData().replace("-", "/"));
-            holder.tv_dia.setText(model.getData().substring(0, 2));
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
             GregorianCalendar gc = new GregorianCalendar();
             try {
                 gc.setTime(sdf.parse(model.getData()));
+                holder.tv_dia.setText((gc.get(Calendar.DAY_OF_MONTH)) + "");
                 switch (gc.get(Calendar.DAY_OF_WEEK)) {
                     case Calendar.SUNDAY:
                         holder.tv_diaS.setText("DOM");

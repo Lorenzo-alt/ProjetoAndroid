@@ -44,7 +44,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:background="#00FFFFFF"
-                android:hint="Usuario"
+                android:hint="E-mail"
                 android:inputType="text"
                 android:textColor="#FFFFFF"
                 android:textColorHint="#FFFFFF"

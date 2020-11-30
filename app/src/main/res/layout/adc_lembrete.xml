@@ -13,7 +13,9 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
         <TextView
             android:id="@+id/textView2"
@@ -107,7 +109,6 @@
                 android:ems="10"
                 android:inputType="textPersonName"
                 android:paddingBottom="5dp"
-                android:text="CSA"
                 android:textColor="#1D1E22" />
 
             <TextView
@@ -132,7 +133,7 @@
                 android:layout_marginRight="24dp"
                 android:orientation="horizontal">
 
-                <EditText
+                <com.santalu.maskara.widget.MaskEditText
                     android:id="@+id/et_dataRealizacao"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -140,12 +141,15 @@
                     android:layout_alignParentLeft="true"
                     android:layout_toStartOf="@+id/img_calendario"
                     android:layout_toLeftOf="@+id/img_calendario"
-                    android:background="@drawable/round_borda"
                     android:ems="10"
                     android:hint="00/00/0000"
-                    android:inputType="date"
+                    android:inputType="number"
+                    android:maxLength="10"
+                    android:textSize="18sp"
                     android:paddingBottom="5dp"
-                    android:textColor="#1D1E22" />
+                    app:mask="##/##/####"
+                    android:textColor="#1D1E22"
+                    android:background="@drawable/round_borda"/>
 
                 <ImageView
                     android:id="@+id/img_calendario"
