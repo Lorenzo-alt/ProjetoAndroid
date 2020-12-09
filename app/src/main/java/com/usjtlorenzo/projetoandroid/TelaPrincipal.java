@@ -221,14 +221,34 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
                         }
                     });
 
-                    popout.findViewById(R.id.img_calendario).setOnClickListener(new View.OnClickListener() {
+                    popout.findViewById(R.id.img_calendario);
+                    popout.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             DatePickerDialog datePickerDialog = new DatePickerDialog(TelaPrincipal.this, R.style.Theme_meuDateDialog, new DatePickerDialog.OnDateSetListener() {
                                 @Override
                                 public void onDateSet(DatePicker datePicker, int ano, int mes, int dia) {
                                     mes = mes + 1;
-                                    et_dataRealizacao.setText(dia + "/" + mes + "/" + ano);
+                                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                                    Date dataFormatada = new Date();
+                                    try {
+                                        dataFormatada = sdf.parse(dia + "/" + mes + "/" + ano);
+                                        Date d = calendar.getTime();
+                                        String dataAtual = sdf.format(d);
+                                        if (!dataFormatada.before(sdf.parse(dataAtual))) {
+                                            if (dia < 10 && mes < 10) {
+                                                et_dataRealizacao.setText("0" + dia + "/" + "0" + mes + "/" + ano);
+                                            } else if(dia < 10) {
+                                                et_dataRealizacao.setText("0" + dia + "/" + mes + "/" + ano);
+                                            } else if(mes < 10) {
+                                                et_dataRealizacao.setText(dia + "/" + "0" + mes + "/" + ano);
+                                            }
+                                        }else{
+                                            Toast.makeText(TelaPrincipal.this, "Não da para voltar no tempo...", Toast.LENGTH_LONG).show();
+                                        }
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }, ano, mes, dia
                             );
@@ -321,10 +341,12 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
 
         boolean resp = true;
         for (Lembrete temp1 : meusLembretes){
-            if (temp1.getNome().equalsIgnoreCase(nomeLembrete)){
-                resp = false;
-            } else{
-                resp = true;
+            if (resp == true) {
+                if (temp1.getNome().equalsIgnoreCase(nomeLembrete)){
+                    resp = false;
+                } else{
+                    resp = true;
+                }
             }
         }
 
@@ -407,10 +429,12 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
 
         boolean resp = true;
         for (Categoria temp : minhasCategoria){
-            if (temp.getNome().equalsIgnoreCase(nomeCategoria)){
-                resp = false;
-            } else{
-                resp = true;
+            if (resp == true) {
+                if (temp.getNome().equalsIgnoreCase(nomeCategoria)){
+                    resp = false;
+                } else{
+                    resp = true;
+                }
             }
         }
 
@@ -560,8 +584,27 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
                 DatePickerDialog datePickerDialog = new DatePickerDialog(TelaPrincipal.this, R.style.Theme_meuDateDialog, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int ano, int mes, int dia) {
-                        mes = mes+1;
-                        et_dataRealizacao.setText(dia + "/" + mes + "/" + ano);
+                        mes = mes + 1;
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                        Date dataFormatada = new Date();
+                        try {
+                            dataFormatada = sdf.parse(dia + "/" + mes + "/" + ano);
+                            Date d = calendar.getTime();
+                            String dataAtual = sdf.format(d);
+                            if (!dataFormatada.before(sdf.parse(dataAtual))) {
+                                if (dia < 10 && mes < 10) {
+                                    et_dataRealizacao.setText("0" + dia + "/" + "0" + mes + "/" + ano);
+                                } else if(dia < 10) {
+                                    et_dataRealizacao.setText("0" + dia + "/" + mes + "/" + ano);
+                                } else if(mes < 10) {
+                                    et_dataRealizacao.setText(dia + "/" + "0" + mes + "/" + ano);
+                                }
+                            }else{
+                                Toast.makeText(TelaPrincipal.this, "Não da para voltar no tempo...", Toast.LENGTH_LONG).show();
+                            }
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }, ano, mes, dia
                 );
@@ -700,7 +743,7 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
     @Override
     public void onCategoriaItemLongClick(final int position) {
         final Categoria categoria = minhasCategoria.get(position);
-        if (!categoria.getNome().equals(this.categoria)) {
+        if (!categoria.getNome().equals("Mostrar Todos Lembretes!")) {
             AlertDialog.Builder builder = new AlertDialog.Builder(TelaPrincipal.this);
             builder.setMessage("Deseja mesmo excluir a categoria: [ " + categoria.getNome() + " ] ? Isso excluirá todos os lembretes relacionados a ela").setTitle("Tem certeza disso ?").setPositiveButton("SIM", new DialogInterface.OnClickListener() {
                 @Override
