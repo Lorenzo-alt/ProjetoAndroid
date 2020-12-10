@@ -91,6 +91,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.myView
         return lembretes.size();
     }
 
+    public void listaFiltrada(ArrayList<Lembrete> lembretesFiltrados){
+        lembretes = lembretesFiltrados;
+        notifyDataSetChanged();
+    }
+
     public class myViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView img_boxLinha;
         TextView tv_tarefa, tv_dtRealizacao, tv_dia, tv_diaS;

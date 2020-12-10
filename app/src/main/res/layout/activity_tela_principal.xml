@@ -5,8 +5,7 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TelaPrincipal"
-    tools:openDrawer="start">
+    tools:context=".TelaPrincipal">
 
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -19,18 +18,66 @@
             android:layout_height="match_parent"
             android:background="#00FFFFFF">
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layout_pesquisa"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="55dp"
+                android:background="@drawable/round_search"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <EditText
+                    android:id="@+id/et_pesquisar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="28dp"
+                    android:layout_marginLeft="28dp"
+                    android:layout_marginEnd="63dp"
+                    android:layout_marginRight="63dp"
+                    android:layout_marginBottom="17dp"
+                    android:drawableLeft="@drawable/ic_search_24"
+                    android:ems="10"
+                    android:fontFamily="sans-serif-medium"
+                    android:hint="Pesquisar..."
+                    android:inputType="textPersonName"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/ic_fechar_pesquisa"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="15dp"
+                    android:layout_weight="1"
+                    android:tint="#FFFFFF"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/et_pesquisar"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_close_24" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_lembretes"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="55dp"
                 android:layout_marginBottom="55dp"
                 android:background="#00FFFFFF"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/layout_pesquisa">
+
+            </androidx.recyclerview.widget.RecyclerView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -38,17 +85,17 @@
             android:id="@+id/tb_principal"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
+            android:layout_gravity="top"
             android:background="?attr/colorPrimaryVariant"
             android:elevation="4dp"
-            android:minHeight="?attr/actionBarSize"
             android:gravity="center_vertical"
-            android:theme="?attr/actionBarTheme"
-            android:layout_gravity="top"
+            android:minHeight="?attr/actionBarSize"
             android:orientation="horizontal"
+            android:paddingStart="15dp"
+            android:paddingLeft="15dp"
             android:paddingEnd="15dp"
             android:paddingRight="15dp"
-            android:paddingLeft="15dp"
-            android:paddingStart="15dp">
+            android:theme="?attr/actionBarTheme">
 
             <ImageView
                 android:id="@+id/logout"
@@ -96,22 +143,24 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
+                android:id="@+id/ic_pesquisa"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginEnd="4dp"
                 android:layout_marginRight="4dp"
-                android:src="@drawable/ic_autorenew_24"
+                android:src="@drawable/ic_search_24"
+                android:tint="#FFFFFF"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/imageView2"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.bottomappbar.BottomAppBar
+            android:id="@+id/bb_rodape"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             android:layout_gravity="bottom"
-            android:backgroundTint="@color/paleta_bars"
-            android:id="@+id/bb_rodape"/>
+            android:backgroundTint="@color/paleta_bars" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fb_addLembrete"
@@ -138,7 +187,7 @@
         app:itemIconSize="40dp"
         app:itemTextAppearance="@style/TextAppearance.MeuText"
         app:menu="@menu/navigation_menu"
-        tools:ignore="MissingConstraints" >
+        tools:ignore="MissingConstraints">
 
         <RelativeLayout
             android:layout_width="match_parent"

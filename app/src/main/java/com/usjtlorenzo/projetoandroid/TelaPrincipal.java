@@ -3,6 +3,7 @@ package com.usjtlorenzo.projetoandroid;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -13,10 +14,9 @@ import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.DatePicker;
@@ -36,9 +36,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.santalu.maskara.Mask;
-import com.santalu.maskara.MaskChangedListener;
-import com.santalu.maskara.MaskStyle;
 import com.usjtlorenzo.projetoandroid.Adapter.IconeAdapter;
 import com.usjtlorenzo.projetoandroid.Adapter.NaviAdapter;
 import com.usjtlorenzo.projetoandroid.Adapter.RecyclerAdapter;
@@ -51,7 +48,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.EventListener;
 import java.util.HashMap;
 
 public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCategoriaItemClick, RecyclerAdapter.OnLembreteItemListener, NaviAdapter.OnCategoriaItemLongClick {
@@ -97,6 +93,50 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
             @Override
             public void onClick(View view) {
                 dl.openDrawer(GravityCompat.START);
+            }
+        });
+
+        ConstraintLayout layout_pesquisa = findViewById(R.id.layout_pesquisa);
+        final EditText et_pesquisa = findViewById(R.id.et_pesquisar);
+        et_pesquisa.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                filtrar(s.toString().trim());
+            }
+        });
+
+        // Metodo de abrir a pesquisa
+        findViewById(R.id.ic_pesquisa).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (et_pesquisa.getVisibility() == View.GONE) {
+                    et_pesquisa.setVisibility(View.VISIBLE);
+                    findViewById(R.id.ic_fechar_pesquisa).setVisibility(View.VISIBLE);
+                } else{
+                    et_pesquisa.setText("");
+                    et_pesquisa.setVisibility(View.GONE);
+                    findViewById(R.id.ic_fechar_pesquisa).setVisibility(View.GONE);
+                }
+            }
+        });
+
+        // Metodo de fechar pesquisa dentro do layout de pesquisa
+        findViewById(R.id.ic_fechar_pesquisa).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                et_pesquisa.setText("");
+                et_pesquisa.setVisibility(View.GONE);
+                findViewById(R.id.ic_fechar_pesquisa).setVisibility(View.GONE);
             }
         });
 
@@ -292,6 +332,25 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
         // Trabalhando com Recycler View, instanciando e preenchendo.
         atualizarRecyclerView();
 
+    }
+
+    private void filtrar(String text) {
+        ArrayList<Lembrete> lembretesFiltrados = new ArrayList<>();
+
+        for (Lembrete item : meusLembretes){
+            if (text.equals("/") || text.equals("-")) {
+                if (item.getNome().toLowerCase().contains(text.toLowerCase()) || item.getCorrelacao().toLowerCase().contains(text.toLowerCase())) {
+                    lembretesFiltrados.add(item);
+                }
+            } else {
+                if (item.getNome().toLowerCase().contains(text.toLowerCase()) || item.getCorrelacao().toLowerCase().contains(text.toLowerCase()) ||
+                item.getData().toLowerCase().contains(text.toLowerCase()) || item.getReal_data().toLowerCase().contains(text.toLowerCase())) {
+                    lembretesFiltrados.add(item);
+                }
+            }
+        }
+
+        meuAdapter.listaFiltrada(lembretesFiltrados);
     }
 
     private Spinner gerandoSpinnerCor(Spinner spinnerCorRecebido){
