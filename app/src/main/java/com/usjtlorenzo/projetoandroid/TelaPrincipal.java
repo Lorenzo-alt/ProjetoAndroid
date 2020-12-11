@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -60,6 +62,7 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
     private String categoria = "Mostrar Todos Lembretes!";
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
+    private EditText et_pesquisa;
     private FloatingActionButton fb_addLembrete;
     private IconeItem iconeItem;
     private IconeItem corItem;
@@ -93,11 +96,11 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
             @Override
             public void onClick(View view) {
                 dl.openDrawer(GravityCompat.START);
+                InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(et_pesquisa.getWindowToken(), 0);
             }
         });
-
-        ConstraintLayout layout_pesquisa = findViewById(R.id.layout_pesquisa);
-        final EditText et_pesquisa = findViewById(R.id.et_pesquisar);
+        et_pesquisa = findViewById(R.id.et_pesquisar);
         et_pesquisa.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -119,6 +122,8 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
         findViewById(R.id.ic_pesquisa).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(et_pesquisa.getWindowToken(), 0);
                 if (et_pesquisa.getVisibility() == View.GONE) {
                     et_pesquisa.setVisibility(View.VISIBLE);
                     findViewById(R.id.ic_fechar_pesquisa).setVisibility(View.VISIBLE);
@@ -134,6 +139,8 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
         findViewById(R.id.ic_fechar_pesquisa).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(et_pesquisa.getWindowToken(), 0);
                 et_pesquisa.setText("");
                 et_pesquisa.setVisibility(View.GONE);
                 findViewById(R.id.ic_fechar_pesquisa).setVisibility(View.GONE);
@@ -261,8 +268,8 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
                         }
                     });
 
-                    popout.findViewById(R.id.img_calendario);
-                    popout.setOnClickListener(new View.OnClickListener() {
+
+                    popout.findViewById(R.id.img_calendario).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             DatePickerDialog datePickerDialog = new DatePickerDialog(TelaPrincipal.this, R.style.Theme_meuDateDialog, new DatePickerDialog.OnDateSetListener() {
@@ -338,6 +345,7 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
 
     private void filtrar(String text) {
         ArrayList<Lembrete> lembretesFiltrados = new ArrayList<>();
+        lembretesFiltrados.clear();
 
         for (Lembrete item : meusLembretes){
             if (text.equals("/") || text.equals("-")) {
@@ -566,6 +574,9 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
     public void onCategoriaItemClick(int position) {
         final Categoria categoriaAtual = minhasCategoria.get(position);
         categoria = categoriaAtual.getNome();
+        et_pesquisa.setText("");
+        InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(et_pesquisa.getWindowToken(), 0);
         dl.closeDrawer(GravityCompat.START);
         atualizarRecyclerView();
     }

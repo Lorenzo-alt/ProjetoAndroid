@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button bt_login;
     private TextView tv_registrar;
+    private TextView tv_recuperar;
     private EditText loginEditText;
     private EditText senhaEditText;
     private FirebaseAuth mAuth;

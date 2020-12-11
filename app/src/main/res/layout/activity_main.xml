@@ -24,7 +24,9 @@
         android:paddingTop="60dp"
         android:paddingRight="60dp"
         app:layout_constraintTop_toBottomOf="@+id/cabecalho"
-        tools:layout_editor_absoluteX="0dp">
+        tools:layout_editor_absoluteX="0dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/et_usuario"
@@ -91,28 +93,10 @@
 
 
         <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:fontFamily="sans-serif-black"
-            android:shadowColor="@color/black"
-            android:shadowDx="1"
-            android:shadowDy="1"
-            android:shadowRadius="3"
-            android:text="Esqueceu a senha?"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.502"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
-
-        <TextView
             android:id="@+id/tv_registrar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:fontFamily="sans-serif-black"
             android:shadowColor="@color/black"
             android:shadowDx="1"
@@ -124,7 +108,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView" />
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
         <RelativeLayout
             android:id="@+id/cabecalho"

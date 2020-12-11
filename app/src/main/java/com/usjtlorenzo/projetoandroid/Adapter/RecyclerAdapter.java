@@ -83,6 +83,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.myView
                 holder.img_boxLinha.setBackgroundResource(R.drawable.dr_caixa_linha_verde);
             } else if (model.getCor().equalsIgnoreCase("Amarelo")) {
                 holder.img_boxLinha.setBackgroundResource(R.drawable.dr_caixa_linha_amarelo);
+            } else if (model.getCor().equalsIgnoreCase("Azul")){
+                holder.img_boxLinha.setBackgroundResource(R.drawable.dr_caixa_linha_azul);
             }
     }
 
