@@ -282,6 +282,8 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
                                                 et_dataRealizacao.setText("0" + dia + "/" + mes + "/" + ano);
                                             } else if(mes < 10) {
                                                 et_dataRealizacao.setText(dia + "/" + "0" + mes + "/" + ano);
+                                            } else{
+                                                et_dataRealizacao.setText(dia + "/" + mes + "/" + ano);
                                             }
                                         }else{
                                             Toast.makeText(TelaPrincipal.this, "Não da para voltar no tempo...", Toast.LENGTH_LONG).show();
@@ -657,6 +659,8 @@ public class TelaPrincipal extends AppCompatActivity implements NaviAdapter.OnCa
                                     et_dataRealizacao.setText("0" + dia + "/" + mes + "/" + ano);
                                 } else if(mes < 10) {
                                     et_dataRealizacao.setText(dia + "/" + "0" + mes + "/" + ano);
+                                }else{
+                                    et_dataRealizacao.setText(dia + "/" + mes + "/" + ano);
                                 }
                             }else{
                                 Toast.makeText(TelaPrincipal.this, "Não da para voltar no tempo...", Toast.LENGTH_LONG).show();
